@@ -1,0 +1,72 @@
+const [debouncedConversations, setDebouncedConversations] = useState(conversations);
+
+useEffect(() => {
+    const timeout = setTimeout(() => {
+        setDebouncedConversations(conversations);
+    }, 300); // 300ms debounce time, adjust as needed
+
+    return () => clearTimeout(timeout);
+}, []);
+
+
+useEffect(() => {
+    // Now, use debouncedConversations to create channels
+    const createChannels = async () => {
+
+        for(let i = 0; i < debouncedConversations.length; i++){
+            let channel = `message.group.${debouncedConversations[i].id}`;
+
+            if (debouncedConversations[i].is_user) {
+                channel = `message.user.${[
+                    parseInt(user.id),
+                    parseInt(debouncedConversations[i].id),
+                ]
+                    .sort((a, b) => a - b)
+                    .join("-")}`;
+            }
+
+            subscribedChannels.current.add(channel);
+
+            Echo.private(channel)
+                .error((error) => {
+                    console.log(error);
+                })
+                .listen("SocketMessage", (e) => {
+                    console.log("Socket Event", e);
+                    const message = e.message;
+
+                    emit("message.created", message);
+
+                    if (message.sender_id === user.id) {
+                        return;
+                    }
+                    emit("newMessageNotification", {
+                        user: message.sender,
+                        group_id: message.group_id,
+                        message:
+                            message.message ||
+                            `Shared ${
+                                message.attachments.length === 1
+                                    ? "an attachment"
+                                    : message.attachments.length +
+                                      " attachments"
+                            }`,
+                    });
+                });
+        }
+    };
+
+    const timeout = setTimeout(() => {
+        console.log('setTimeout started');
+        createChannels(); // Asynchronously create channels
+    }, 0);
+
+    return () => {
+        console.log('Cleanup');
+        clearTimeout(timeout); // Clean up timeout
+        subscribedChannels.current.forEach((channel) => {
+            Echo.leave(channel);
+        });
+        subscribedChannels.current.clear();
+    };
+}, [debouncedConversations, user.id]);
