@@ -33,7 +33,6 @@ function Home({ message, selectedConversation }) {
         setShowAttachmentPreview(true);
     }
 
-    console.log(previewAttachment)
 
     const messageCreated = (message) => {
         console.log("messageCreated function ", message);

@@ -25,9 +25,15 @@
     },
     "dependencies": {
         "@heroicons/react": "^2.2.0",
+        "@joeattardi/emoji-button": "^4.6.4",
         "daisyui": "^5.0.28",
+        "emoji-button": "^2.2.2",
         "emoji-picker-react": "^4.12.2",
+        "lamejs": "^1.2.1",
+        "mic-recorder-to-mp3": "^2.2.2",
+        "react-h5-audio-player": "^3.10.0-rc.1",
         "react-markdown": "^10.1.0",
+        "recorder-js": "^1.0.7",
         "rehype-raw": "^7.0.0",
         "remark-breaks": "^4.0.0"
     }

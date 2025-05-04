@@ -34,14 +34,14 @@ const MessageItem = ({ message, attachmentClick }) => {
 
             <div
                 className={
-                    "chat-bubble relative " +
+                    "chat-bubble relative  " +
                     (message.sender_id === currentUser.id
                         ? "chat-bubble-info"
                         : "bg-gray-700")
                 }
             >
-                <div className="chat-message">
-                    <div className="chat-message-content break-words break-all whitespace-pre-wrap">
+                <div className="chat-message ">
+                    <div className="chat-message-content flex justify-center items-center">
                         {/* <ReactMarkdown 
                              remarkPlugins={[remarkBreaks]}
                              rehypePlugins={[rehypeRaw]}

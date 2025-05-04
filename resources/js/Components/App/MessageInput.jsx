@@ -8,13 +8,16 @@ import {
     XCircleIcon,
 } from "@heroicons/react/24/solid";
 import NewMessageInput from "./NewMessageInput";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import axios from "axios";
 import EmojiPicker from "emoji-picker-react";
 import CustomAudioPlayer from "./CustomAudioPlayer";
 import AttachmentPreview from "./AttachmentPreview";
 import { isAudio, isImage } from "@/helpers";
+import AudioRecorder from "./AudioRecorder";
+import { EmojiButton } from "@joeattardi/emoji-button";
+import { createPortal } from "react-dom";
 
 const MessageInput = ({ conversation = null }) => {
     const [newMessage, setNewMessage] = useState("");
@@ -27,22 +30,22 @@ const MessageInput = ({ conversation = null }) => {
 
     const onFileChange = (ev) => {
         const files = ev.target.files;
-        console.log(files)
+        console.log(files);
         const updatedFiles = [...files].map((file) => {
             return {
                 file: file,
                 url: URL.createObjectURL(file),
             };
         });
-        
+
         setChoosenFiles((prevFiles) => {
-            console.log([...prevFiles, ...updatedFiles])
+            console.log([...prevFiles, ...updatedFiles]);
             return [...prevFiles, ...updatedFiles];
         });
     };
     useEffect(() => {
-        console.log(choosenFiles)
-    }, [choosenFiles])
+        console.log(choosenFiles);
+    }, [choosenFiles]);
 
     // is code ka kaam hai input ko maintain rakhnay ka
     useEffect(() => {
@@ -70,7 +73,6 @@ const MessageInput = ({ conversation = null }) => {
     }, [conversation]);
 
     const onSendClick = () => {
-        
         if (messageSending) {
             console.log("not allow multiple clicks");
             return;
@@ -105,7 +107,7 @@ const MessageInput = ({ conversation = null }) => {
             formData.append("group_id", conversation.id);
         }
 
-                        // debug code hai
+        // debug code hai
         //   formData.getAll('attachments[]').forEach((file, index) => {
         //     console.log(`File ${index}:`, file.name, file.size, file.type);
         //   });
@@ -124,7 +126,7 @@ const MessageInput = ({ conversation = null }) => {
             })
             .then((res) => {
                 // bottom mai scroll karwa rhe hai
-
+                console.log(res)
                 setNewMessage("");
             })
             .catch((error) => {
@@ -132,7 +134,7 @@ const MessageInput = ({ conversation = null }) => {
                 setInputErrorMessage(
                     message || "An error occurred while sending message"
                 );
-                console.log(error)
+                console.log(error);
             })
             .finally(() => {
                 const container = document.querySelector("#messageCtrRef");
@@ -145,7 +147,6 @@ const MessageInput = ({ conversation = null }) => {
                 setMessageSending(false);
                 setUploadProgress(0);
                 setChoosenFiles([]);
-                
             });
     };
 
@@ -174,9 +175,42 @@ const MessageInput = ({ conversation = null }) => {
             });
     };
 
+    const recordedAudioReady = (file, url) => {
+        setChoosenFiles((prevFiles) => [...prevFiles, { file, url }]);
+    };
+
+    const pickerRef = useRef(null);
+    const buttonRef = useRef(null);
+    const pickerContianerRef = useRef(document.createElement("div"));
+
+    useEffect(() => {
+        if (!pickerRef.current) {
+            const picker = new EmojiButton({
+                rootElement: pickerContianerRef.current,
+                theme: "dark",
+                autoHide: false,
+            });
+    
+            picker.on("emoji", (selection) => {
+                setNewMessage((prev) => prev + selection.emoji);
+            });
+    
+            pickerRef.current = picker;
+        }
+    
+       
+    }, []);
+
+    const togglePicker = () => {
+        if (pickerRef.current) {
+            pickerRef.current.togglePicker(buttonRef.current);
+        }
+    };
+
     return (
-        <div className="flex flex-wrap items-center border-t border-slate-700 py-3"
-            onClick={() => setInputErrorMessage('')}
+        <div
+            className="flex flex-wrap items-center border-t border-slate-700 py-3"
+            onClick={() => setInputErrorMessage("")}
         >
             <div className="order-2 flex-1 xs:flex-none xs:order-1 p-2">
                 <button className=" p-1 text-gray-400 hover:text-gray-300 relative">
@@ -200,9 +234,10 @@ const MessageInput = ({ conversation = null }) => {
                      cursor-pointer"
                     />
                 </button>
+                <AudioRecorder fileReady={recordedAudioReady} />
             </div>
 
-            <div className="order-1 px-3 xs:p-0 min-w-[220px] basis-full xs:basis-0 xs:order-2 flex-1 relative ">
+            <div className="order-3 px-3 xs:p-0 min-w-[220px] basis-full xs:basis-0 xs:order-2 flex-1 relative ">
                 <div className="flex">
                     <NewMessageInput
                         value={newMessage}
@@ -243,7 +278,7 @@ const MessageInput = ({ conversation = null }) => {
                     </p>
                 )}
 
-                <div className="flex flex-wrap mt-2 gap-1">
+                <div className="flex flex-wrap mt-2 gap-1 order-4">
                     {choosenFiles.map((file) => (
                         <div
                             key={file.file.name}
@@ -275,36 +310,35 @@ const MessageInput = ({ conversation = null }) => {
                                 onClick={() => {
                                     setChoosenFiles(
                                         choosenFiles.filter((f) => {
-                                            return f.file.name !== file.file.name;
+                                            return (
+                                                f.file.name !== file.file.name
+                                            );
                                         })
-                                    )}
-                                }
+                                    );
+                                }}
                                 className="absolute -right-2 -top-2 w-6 h-6 rounded-full bg-gray-800 text-gray-300 hover:text-gray-100 z-10"
                             >
-                                <XCircleIcon className="w-6"/>
+                                <XCircleIcon className="w-6" />
                             </button>
-
                         </div>
                     ))}
                 </div>
             </div>
 
-            <div className="order-3 xs:order-3 p-2 flex">
-                {/* <button className="p-1 text-gray-400 hover:text-gray-300">
-                </button> */}
-                <Popover className="relative">
-                    <PopoverButton className="p-1 text-gray-400 hover:text-gray-300">
+            <div className="order-2 xs:order-3 p-2 flex">
+                <div className="relative z-50 flex items-center gap-2">
+                    <button
+                        ref={buttonRef}
+                        onClick={togglePicker}
+                        className="p-1 text-gray-400 hover:text-gray-300"
+                    >
                         <FaceSmileIcon className="w-6 h-6" />
-                    </PopoverButton>
-                    <PopoverPanel className="absolute right-0 bottom-full z-10">
-                        <EmojiPicker
-                            theme="dark"
-                            onEmojiClick={(ev) =>
-                                setNewMessage(newMessage + ev.emoji)
-                            }
-                        ></EmojiPicker>
-                    </PopoverPanel>
-                </Popover>
+                    </button>
+                    {createPortal(
+                        <div ref={pickerContianerRef} className="absolute z-50 "></div>,
+                        document.getElementById("portal")
+                    )}
+                </div>
                 <button
                     onClick={onLikeClick}
                     className="p-1 text-gray-400 hover:text-gray-300"

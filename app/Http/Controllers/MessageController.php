@@ -10,76 +10,154 @@ use App\Models\Group;
 use App\Models\Message;
 use App\Models\MessageAttachment;
 use App\Models\User;
+use FFMpeg\FFMpeg;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
-    public function byUser(User $user){
+    public function byUser(User $user)
+    {
         // return $user->toConversationArray(); check karnay kai liye hai conversation array kya kaam kar rha hai 
 
         $messages = Message::where('sender_id', auth()->id())
-                        ->where('receiver_id', $user->id)
-                        ->orWhere('sender_id', $user->id)
-                        ->where('receiver_id', auth()->id())
-                        ->latest()
-                        ->paginate(20)
-                    ;
-// return MessageResource::collection($messages);
-      return inertia('Home', [
+            ->where('receiver_id', $user->id)
+            ->orWhere('sender_id', $user->id)
+            ->where('receiver_id', auth()->id())
+            ->latest()
+            ->paginate(20);
+        // return MessageResource::collection($messages);
+        return inertia('Home', [
             'selectedConversation' => $user->toConversationArray(),
             'message' => MessageResource::collection($messages),
         ]);
     }
 
-    public function byGroup(Group $group){
+    public function byGroup(Group $group)
+    {
         $messages = Message::where('group_id', $group->id)
-                        ->latest()
-                        ->paginate(20);
+            ->latest()
+            ->paginate(20);
         //    return MessageResource::collection($messages);
-            
-                        
+
+
         return inertia('Home', [
             'selectedConversation' => $group->toConversationArray(),
             'message' => MessageResource::collection($messages),
         ]);
     }
 
-    public function loadOlder(Message $message){
-        if($message->group_id){
+    public function loadOlder(Message $message)
+    {
+        if ($message->group_id) {
             $messages = Message::where('created_at', '<', $message->created_at)
-                        ->where('group_id', $message->group_id)
-                        ->latest()
-                        ->paginate(15)
-                    ;
+                ->where('group_id', $message->group_id)
+                ->latest()
+                ->paginate(15);
         } else {
             $messages = Message::where('created_at', '<', $message->created_at)
-                    ->where(function ($query) use ($message){
-                        $query->where('sender_id', $message->sender_id)
+                ->where(function ($query) use ($message) {
+                    $query->where('sender_id', $message->sender_id)
                         ->where('receiver_id', $message->receiver_id)
                         ->orWhere('sender_id', $message->receiver_id)
-                        ->where('receiver_id', $message->sender_id);   
-            })
-            ->latest()
-            ->paginate(15)
-            ;
+                        ->where('receiver_id', $message->sender_id);
+                })
+                ->latest()
+                ->paginate(15);
         }
 
         return MessageResource::collection($messages);
-    } 
+    }
+
+    // public function store(StoreMessageRequest $request)
+    // {
+    //     $data = $request->validated();
+    //     $data['sender_id'] = auth()->id();
+    //     $receiver_id = $data['receiver_id'] ?? null;
+    //     $group_id = $data['group_id'] ?? null;
+    //     $files = $request->file('attachments') ?? null;
+
+    //     // Create the message
+    //     $message = Message::create($data);
+
+    //     $attachments = [];
+    //     if ($files) {
+    //         foreach ($files as $file) {
+    //             $directory = 'attachments/' . Str::random(32);
+    //             Storage::makeDirectory($directory);
+
+    //             // Check if the file is an .ogg file
+    //             if ($file->getClientOriginalExtension() === 'ogg' || $file->getClientOriginalExtension() === 'webm') {
+    //                 // Convert .ogg to .mp3
+    //                 $inputPath = $file->getRealPath();
+    //                 $outputPath = storage_path('app/public/' . $directory . '/converted_audio.mp3');
+
+    //                 // Convert using FFmpeg
+    //                 $ffmpeg = FFMpeg::create([
+    //                     'ffmpeg.binaries'  => '/path/to/ffmpeg',
+    //                     'ffprobe.binaries' => '/path/to/ffprobe',
+    //                 ]); // Create FFMpeg instance
+    //                 $audio = $ffmpeg->open($inputPath); // Open the file
+    //                 $audio->save(new \FFMpeg\Format\Audio\Mp3(), $outputPath); // Save the converted file as mp3
+
+    //                 // Use the same directory for saving the converted mp3 file
+    //                 $filePath = 'attachments/' . Str::random(32) . '/converted_audio.mp3';  // Save it in the same directory
+
+    //                 $model = [
+    //                     'message_id' => $message->id,
+    //                     'name' => 'converted_audio.mp3', // Set to mp3 name
+    //                     'mime' => 'audio/mpeg', // Set MIME type to mp3
+    //                     'size' => filesize($outputPath), // Get the size of the converted file
+    //                     'path' => $filePath,
+    //                 ];
+    //             } else {
+    //                 // If not .ogg, store it as is
+    //                 $model = [
+    //                     'message_id' => $message->id,
+    //                     'name' => $file->getClientOriginalName(),
+    //                     'mime' => $file->getClientMimeType(),
+    //                     'size' => $file->getSize(),
+    //                     'path' => $file->store($directory, 'public'),
+    //                 ];
+    //             }
+
+    //             $attachment = MessageAttachment::create($model);
+    //             $attachments[] = $attachment;
+    //         }
+
+    //         $message->attachments = $attachments;
+    //     }
+
+    //     if ($receiver_id) {
+    //         Conversation::updateConversationWithMessage($receiver_id, auth()->id(), $message);
+    //     }
+
+    //     if ($group_id) {
+    //         Group::updateGroupWithMessage($group_id, $message);
+    //     }
+
+    //     SocketMessage::dispatch($message);
+
+    //     return new MessageResource($message);
+    // }
+
 
     public function store(StoreMessageRequest $request){
-        
-        
+
+
         $data = $request->validated();
         $data['sender_id'] = auth()->id();
         $receiver_id = $data['receiver_id'] ?? null;
         $group_id = $data['group_id'] ?? null;
-        $files = $request->file('attachments') ?? null;
-        
-        $message = Message::create($data);
+        $files = $data['attachments'] ?? null;
+// dd($data);
+// dd($request->all());
+        if($files === null && $data['message'] === null){
+            return response()->json(['message'=> 'message and attachments are null'],404);
+        }
+
+        $message = $message = Message::create($data);
 
         $attachments = [];
         if($files){
@@ -96,7 +174,7 @@ class MessageController extends Controller
                 ];
                 $attachment = MessageAttachment::create($model);
                 $attachments[] = $attachment;
-            
+
             }
             $message->attachments = $attachments;
         }
@@ -112,11 +190,12 @@ class MessageController extends Controller
         SocketMessage::dispatch($message);
 
         return new MessageResource($message);
-     
+
     }
 
-    public function destory(Message $message){
-        if($message->sender_id !== auth()->id()){
+    public function destory(Message $message)
+    {
+        if ($message->sender_id !== auth()->id()) {
             return response()->json(['message', 'forbidden'], 403);
         }
 

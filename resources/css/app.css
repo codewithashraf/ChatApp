@@ -3,13 +3,62 @@
 @tailwind utilities;
 
 
-.EmojiPickerReact.epr-dark-theme{
-    background-color: theme('colors.gray.800');
-}
+.emoji-picker {
+    z-index: 999999 !important;
+    position: fixed !important;
+    pointer-events: auto !important;
+    right: 4% !important; 
+    bottom: 12% !important;
+    width: 40vw !important;
+    font-size: 1.5vw !important;
 
-.EmojiPickerReact.epr-dark-theme .epr-emoji-category-label{
-    background-color: theme('colors.gray.900');
+  }
+
+  .emoji-picker__overlay{
+    display: none;
+    visibility: hidden;
+  }
+
+  img,
+video {
+  pointer-events: auto; /* make sure they don't override */
 }
+  
+  /* Small screens ke liye responsive tweak */
+  /* @media (max-width: 600px) {
+    .emoji-picker {
+      max-width: 80vw !important;
+      font-size: 14px !important;
+      position: relative;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+  } */
+
+  @media (max-width: 900px) {
+    .emoji-picker {
+      width: 320px !important;
+      font-size: 12px !important;
+      bottom: 8% !important;
+    }
+  }
+   
+  @media (max-width: 650px) {
+    .emoji-picker {
+      width: 300px !important;
+      font-size: 12px !important;
+      bottom: 10% !important;
+    }
+  }
+  @media (max-width: 412px) {
+    .emoji-picker {
+      width: 250px !important;
+      font-size: 10px !important;
+      bottom: 17% !important;
+    }
+  }
+
 
 
 .conversation-item .avatar.avatar-online::before{
@@ -100,11 +149,173 @@
       background-color: lightblue;
     }
     .chat-message-content code {
-        font-size: .8em;
+        
         overflow-wrap: break-word;
         max-width: 100%;
     }
     .chat-message-content {
-        font-size: 12px;
+        font-size: 14px;
     }
   }
+
+  
+
+  /* input range ko style kiya hai */
+
+  .volume-range {
+    -webkit-appearance: none;
+    appearance: none; 
+    border-radius: 9999px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .volume-range::-webkit-slider-runnable-track {
+    height: 2px;
+    background: #404b5a;
+  }
+  
+  .volume-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #4d73a8; /* Tailwind's gray-600 */
+    border-radius: 50%;
+    margin-top: -5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .volume-range::-webkit-slider-thumb:hover {
+    background: #374151; /* Tailwind's gray-700 */
+  }
+
+
+  
+  /* Firefox */
+ .volume-range {
+  -webkit-appearance: none;
+  appearance: none; 
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  background: transparent;
+}
+
+/* Firefox track */
+.volume-range::-moz-range-track {
+  height: 2px;
+  background: #404b5a;
+  border: none;
+  border-radius: 9999px;
+}
+
+/* Firefox thumb */
+.volume-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: #4d73a8; /* Tailwind's gray-600 */
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s;
+  box-sizing: border-box;
+}
+
+/* Hover effect for Firefox */
+.volume-range::-moz-range-thumb:hover {
+  background: #374151; /* Tailwind's gray-700 */
+}
+
+/* chrome ka design */
+  .custom-range {
+    -webkit-appearance: none;
+    /* width: 100%; */
+  }
+  
+  
+  /* Track (line) */
+  .custom-range::-webkit-slider-runnable-track {
+    height: 2px;
+    background: gray;
+    border: none;
+    border-radius: 9999px;
+  }
+  
+  /* Thumb (circle) */
+  .custom-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 16px;
+    width: 16px;
+    background: #1f2554;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -7px; /* adjust according to track height */
+    /* box-shadow: 0 0 2px rgba(0,0,0,0.5); */
+    transition: background 0.3s ease;
+  }
+  
+  
+  .custom-range::-webkit-slider-thumb:hover {
+    background: #6c9ae3;
+  }
+
+  /* ****************************************************** */
+  
+  /* Firefox ke liye */
+  .custom-range {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    height: 2px;
+    width: 100%; /* Ensure it takes the full width */
+}
+
+/* Track (line) */
+.custom-range::-webkit-slider-runnable-track {
+    height: 2px;
+    background: gray;
+}
+
+.custom-range::-moz-range-track {
+    height: 2px;
+    background: gray;
+    border: none;
+    border-radius: 9999px;
+}
+
+/* Thumb (circle) */
+.custom-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 16px;
+    width: 16px;
+    background: #1f2554;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -7px; /* adjust according to track height */
+    transition: background 0.3s ease;
+}
+
+.custom-range::-moz-range-thumb {
+    -moz-appearance: none;
+    appearance: none;
+    height: 16px;
+    width: 16px;
+    background: #1f2554;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.custom-range::-webkit-slider-thumb:hover {
+    background: #6c9ae3;
+}
+
+
+
+  
