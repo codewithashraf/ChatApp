@@ -25,7 +25,6 @@ export const EventBusProvider = ({ children }) => {
         events[name].push(cb); 
 
         return () => {
-            console.log('on method off hogaya hai. return on method')
             events[name] = events[name].filter((callback) => callback !== cb);
         };
     }

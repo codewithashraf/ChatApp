@@ -15,6 +15,7 @@ import {
     const [volume, setVolume] = useState(1);
   
     const audioRef = useRef(null);
+    const controlAudioRef = useRef(null);
 
   
     useEffect(() => {
@@ -75,7 +76,8 @@ import {
     const timeoutRef = useRef(null);
   
     const handleSeekChange = (e) => {
-        
+      
+
       const value = Number(e.target.value);
       audioRef.current.pause();
       audioRef.current.currentTime = value;
@@ -96,10 +98,14 @@ import {
 
     const onUpdateTime = () => {
       setCurrentTime(audioRef.current.currentTime);
+      if(audioRef.current.currentTime === audioRef.current.duration){
+        setIsPlaying(false);
+        setCurrentTime(0)
+      }
     };
   
     return (
-        <div className="bg-slate-950 text-white sm:rounded-xl rounded-lg  sm:w-[240px] md:w-full flex items-center xs:gap-2  xs:px-4 xs:py-2 px-2  ">
+        <div className="bg-slate-950 text-white sm:rounded-xl rounded-lg xs:w-[240px] md:w-full flex items-center xs:gap-2  xs:px-4 xs:py-2 px-2  ">
           <div onClick={togglePlay}>
             {!isPlaying && <PlayCircleIcon className="md:w-10 w-6  text-gray-400" />}
             {isPlaying && <PauseCircleIcon className="md:w-10 w-6 text-gray-400" />}
@@ -116,6 +122,7 @@ import {
             <div>
               <input
                 type="range"
+                ref={controlAudioRef}
                 min="0"
                 max={duration}
                 value={currentTime}

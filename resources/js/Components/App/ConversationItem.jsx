@@ -12,7 +12,7 @@ const ConversationItem = ({
     selectedConversation = null,
     online = null,
 }) => {
-    // console.log('conversationitem', conversation)
+    console.log('conversationitem', conversation)
     // console.log(hideSidebar, 'conversation wala component hai')
     const page = usePage();
     const currentUser = page.props.auth.user;

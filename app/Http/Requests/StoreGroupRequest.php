@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreMessageRequest extends FormRequest
+class StoreGroupRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,13 +22,16 @@ class StoreMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message' => 'nullable|string',
-            'group_id' => 'required_without:receiver_id|nullable|exists:groups,id',
-            'receiver_id' => 'required_without:group_id|nullable|exists:users,id',
-            'conversation_id' => 'nullable',
-            'is_read' => 'nullable|in:0,1',
-            'attachments' => 'nullable|array|max:10',
-            'attachments.*' => 'file|max:10240000',
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'user_ids' => ['nullable', 'array'],
+            'user_ids.*' => ['integer', 'exists:users,id'],
         ];
+    }
+
+    public function validated($key = null, $default = null){
+        $validated = parent::validated($key, $default);
+        $validated['owner_id'] = $this->user()->id;
+        return $validated;
     }
 }

@@ -5,6 +5,7 @@ import { formatMessageDateLong } from "@/helpers";
 import remarkBreaks from "remark-breaks";
 import rehypeRaw from "rehype-raw";
 import MessageAttachments from "./MessageAttachments";
+import MessageOptionsDropdown from "./MessageOptionsDropdown";
 
 const MessageItem = ({ message, attachmentClick }) => {
     const currentUser = usePage().props.auth.user;
@@ -34,14 +35,17 @@ const MessageItem = ({ message, attachmentClick }) => {
 
             <div
                 className={
-                    "chat-bubble relative  " +
+                    "chat-bubble relative   " +
                     (message.sender_id === currentUser.id
                         ? "chat-bubble-info"
                         : "bg-gray-700")
                 }
             >
-                <div className="chat-message ">
-                    <div className="chat-message-content flex justify-center items-center">
+                {message.sender_id == currentUser.id && (
+                    <MessageOptionsDropdown message={message} />
+                )}
+                <div className="chat-message  ">
+                    <div className="chat-message-content max-w-fit flex relative justify-center items-center">
                         {/* <ReactMarkdown 
                              remarkPlugins={[remarkBreaks]}
                              rehypePlugins={[rehypeRaw]}
@@ -49,6 +53,7 @@ const MessageItem = ({ message, attachmentClick }) => {
                             {message.message.replace(/(\r\n|\r|\n)/g, "<br />")}
                         </ReactMarkdown> */}
                         <ReactMarkdown>{message.message}</ReactMarkdown>
+                        {/* {message.message} */}
                     </div>
                     <MessageAttachments 
                         attachments={message.attachments}

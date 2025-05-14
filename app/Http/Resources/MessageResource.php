@@ -22,6 +22,7 @@ class MessageResource extends JsonResource
             'receiver_id' => $this->receiver_id,
             'sender' => $this->sender ? new UserResource($this->sender) : null,
             'group_id' => $this->group_id,
+            'is_read' => $this->is_read,
             'attachments' => $this->attachments ? MessageAttachmentResource::collection($this->attachments) : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

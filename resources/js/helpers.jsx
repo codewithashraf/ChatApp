@@ -70,6 +70,11 @@ export const isYesterday = (date) => {
     );
 }
 
+export const formatDate = (date) => {
+    const options = { month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+  };
+
 
 export const isImage = (attachment) => {
     let mime = attachment.mime || attachment.type;

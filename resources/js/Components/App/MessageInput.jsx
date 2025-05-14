@@ -9,15 +9,14 @@ import {
 } from "@heroicons/react/24/solid";
 import NewMessageInput from "./NewMessageInput";
 import { useEffect, useRef, useState } from "react";
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import axios from "axios";
-import EmojiPicker from "emoji-picker-react";
 import CustomAudioPlayer from "./CustomAudioPlayer";
 import AttachmentPreview from "./AttachmentPreview";
 import { isAudio, isImage } from "@/helpers";
 import AudioRecorder from "./AudioRecorder";
 import { EmojiButton } from "@joeattardi/emoji-button";
 import { createPortal } from "react-dom";
+import { usePage } from "@inertiajs/react";
 
 const MessageInput = ({ conversation = null }) => {
     const [newMessage, setNewMessage] = useState("");
@@ -27,6 +26,8 @@ const MessageInput = ({ conversation = null }) => {
     const [conversationId, setConversationId] = useState(null);
     const [choosenFiles, setChoosenFiles] = useState([]);
     const [uploadProgress, setUploadProgress] = useState(0);
+
+    const user = usePage().props.auth.user;
 
     const onFileChange = (ev) => {
         const files = ev.target.files;
@@ -101,8 +102,11 @@ const MessageInput = ({ conversation = null }) => {
         });
 
         formData.append("message", newMessage);
+        formData.append("is_read", 0);
         if (conversation.is_user) {
             formData.append("receiver_id", conversation.id);
+            const createConversationId = [conversation.id, user.id].sort().join('_');
+            formData.append("conversation_id", createConversationId);
         } else {
             formData.append("group_id", conversation.id);
         }
@@ -157,10 +161,13 @@ const MessageInput = ({ conversation = null }) => {
         setMessageSending(true);
         const data = {
             message: "👍",
+            is_read: 0,
         };
 
         if (conversation.is_user) {
             data["receiver_id"] = conversation.id;
+            const createConversationId = [conversation.id, user.id].sort().join('_');
+            data['conversation_id'] = createConversationId;
         } else if (conversation.is_group) {
             data["group_id"] = conversation.id;
         }

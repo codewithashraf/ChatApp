@@ -59,7 +59,7 @@ const MessageAttachments = ({ attachments, attachmentClick }) => {
                                 `group flex flex-col items-center justify-center text-gray-500 relative cursor-pointer  ` +
                                 (isAudio(attachment)
                                     ? "w-60 sm:w-80"
-                                    : "xs:w-28 sm:w-36 xl:w-44 w-[24vw] aspect-square bg-blue-100")
+                                    : "xs:w-28 sm:w-36 xl:w-44 w-[20vw] aspect-square bg-blue-100")
                             }
                         >
                             {!isAudio(attachment) && (
@@ -74,10 +74,10 @@ const MessageAttachments = ({ attachments, attachmentClick }) => {
                             )}
 
                             {isImage(attachment) && (
-                                <img
-                                    src={attachment.url}
-                                    className="xs:object-cover xs:aspect-square "
-                                />
+                                    <img
+                                        src={attachment.url}
+                                        className="xs:object-contain xs:aspect-square "
+                                    />
                             )}
 
                             {isVideo(attachment) && (
@@ -93,20 +93,14 @@ const MessageAttachments = ({ attachments, attachmentClick }) => {
                             )}
 
                             {isAudio(attachment) && (
-                                <div 
-                                onClick={(e) => e.stopPropagation()}
-                                className="relative w-[360px] sm:w-[100%] md:flex-1 flex justify-center items-center">
-                                    {/* <audio
-                                        ref={audioREF}
-                                        src={attachment.url}
-                                        controls
-                                        className="text-xs"
-                                    ></audio> */}
+                                <div
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="relative md:flex-1 flex justify-center items-center"
+                                >
                                     <AdvancedAudioPlayer
                                         fileUrl={attachment.url}
                                         attachment={attachment}
                                     />
-                                    {/* {<CustomAudioPlayer file={attachment} />} */}
                                 </div>
                             )}
 

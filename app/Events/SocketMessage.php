@@ -13,23 +13,29 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class SocketMessage implements  ShouldBroadcastNow
+class SocketMessage implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(public Message $message)
+    public function __construct(
+        public Message $message,
+        public $lastMessage = null, 
+        public $messageDeleted = false, 
+    )
     {
         //
     }
 
-    public function broadcastWith(): array 
+    public function broadcastWith(): array
     {
-        return [
-            'message' => new MessageResource($this->message),
-        ];
+            return [
+                'message' => new MessageResource($this->message),
+                'lastMessage' => $this->lastMessage,
+                'messageDeleted' => $this->messageDeleted,
+            ];
     }
 
     /**
@@ -42,13 +48,12 @@ class SocketMessage implements  ShouldBroadcastNow
         $m = $this->message;
         $channels = [];
 
-        if($m->group_id){
+        if ($m->group_id) {
             $channels[] = new PrivateChannel('message.group.' . $m->group_id);
-        }
-        else {
+        } else {
             $channels[] = new PrivateChannel('message.user.' . collect([$m->sender_id, $m->receiver_id])->sort()->implode('-'));
         }
 
-        return $channels;  
+        return $channels;
     }
 }
