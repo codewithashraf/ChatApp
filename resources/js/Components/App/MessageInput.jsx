@@ -105,7 +105,7 @@ const MessageInput = ({ conversation = null }) => {
         formData.append("is_read", 0);
         if (conversation.is_user) {
             formData.append("receiver_id", conversation.id);
-            const createConversationId = [conversation.id, user.id].sort().join('_');
+            const createConversationId = [conversation.id, user.id].sort((a,b) => a - b).join('_');
             formData.append("conversation_id", createConversationId);
         } else {
             formData.append("group_id", conversation.id);

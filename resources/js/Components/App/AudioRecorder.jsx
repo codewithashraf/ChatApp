@@ -41,7 +41,7 @@ const AudioRecorder = ({ fileReady }) => {
                     });
 
                     let audioFile = new File([audioBlob], "recorded_audio.ogg", {
-                        type: "audio/webm;codecs=opus",
+                        type: "audio/;codecs=opus",
                     });
 
                     const url = URL.createObjectURL(audioFile);

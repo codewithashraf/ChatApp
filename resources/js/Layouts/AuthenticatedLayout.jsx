@@ -130,7 +130,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <>
-            <div className="min-h-screen h-screen flex flex-col ">
+            <div className="min-h-screen h-[100dvh] flex flex-col ">
                 <nav className="border-b border-gray-700">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="flex h-16 justify-between">

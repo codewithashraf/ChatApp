@@ -151,6 +151,7 @@ const ChatLayout = ({ children }) => {
     }, [localConversations]);
 
     useEffect(() => {
+        
         Echo.join("online")
             .here((users) => {
                 const onlineUsersObj = Object.fromEntries(

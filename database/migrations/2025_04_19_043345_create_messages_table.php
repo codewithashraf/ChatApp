@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('sender_id')->constrained('users');
             $table->foreignId('receiver_id')->nullable()->constrained('users');
             $table->foreignId('group_id')->nullable()->constrained('groups');
-            $table->foreignId('conversation_id')->nullable()->constrained('conversations');
+            $table->string('conversation_id')->nullable();
+            $table->tinyInteger('is_read')->default(0);
             $table->timestamps();
         });
 
@@ -34,7 +35,19 @@ return new class extends Migration
      * Reverse the migrations.
      */
     public function down(): void
-    {
-        Schema::dropIfExists('messages');
-    }
+{
+    // Step 1: Drop foreign keys from other tables that point to messages
+    Schema::table('groups', function (Blueprint $table) {
+        $table->dropForeign(['last_message_id']);
+        $table->dropColumn('last_message_id');
+    });
+
+    Schema::table('conversations', function (Blueprint $table) {
+        $table->dropForeign(['last_message_id']);
+        $table->dropColumn('last_message_id');
+    });
+
+    // Step 2: Ab safely messages table drop karo
+    Schema::dropIfExists('messages');
+}
 };
