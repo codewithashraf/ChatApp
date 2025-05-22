@@ -18,7 +18,6 @@ const ChatLayout = ({ children }) => {
     const [sortedConversatons, setSortedConversations] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState({});
     const [showGroupModal, setShowGroupModal] = useState(false);
-    console.log(conversations);
     const isUserOnline = (userId) => onlineUsers[userId];
 
     const onSearch = (ev) => {

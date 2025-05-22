@@ -43,10 +43,10 @@ const MessagesRender = ({
                     }
                 } else {
 
-                    
+                    // debugger
                     let isUnRead = false;
                     if(last_message_read_id === null){
-                        isUnRead = true;
+                        
                     }else {
                         isUnRead = msg.id > last_message_read_id;
                     }
@@ -74,7 +74,7 @@ const MessagesRender = ({
                                     ref={unreadMessageRef}
                                 >
                                     <h2 className="text-slate-200 bg-slate-800 w-fit px-10 py-2 rounded-lg">
-                                        Un Read Messages
+                                        un read Messages
                                     </h2>
                                 </div>
                             )}

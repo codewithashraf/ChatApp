@@ -53,7 +53,7 @@ class MessageController extends Controller
         return inertia('Home', [
             'selectedConversation' => $group->toConversationArray(),
             'message' => MessageResource::collection($messages),
-            'last_message_read_id' => $groupUser->last_message_read_id || null,
+            'last_message_read_id' => (int) $groupUser->last_message_read_id,
         ]);
     }
 

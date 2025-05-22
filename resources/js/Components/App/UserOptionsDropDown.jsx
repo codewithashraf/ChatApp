@@ -1,3 +1,4 @@
+import { useEventBus } from "@/EventBus";
 import {
     Menu,
     MenuButton,
@@ -14,21 +15,32 @@ import {
   import axios from "axios";
   
   export default function UserOptionsDropDown({ conversation }) {
-    const changeUserRole = () => {
+
+    const { emit } = useEventBus();
+
+    const changeUserRole = (e) => {
+      e.stopPropagation();
       if (!conversation.is_user) return;
   
       axios
         .post(route("user.changeRole", conversation.id))
-        .then((res) => console.log(res.data))
+        .then((res) => {
+          console.log(res.data.message)
+          emit('toast.show', res.data.message);
+        })
         .catch((err) => console.error(err));
     };
   
-    const onBlockUser = () => {
+    const onBlockUser = (e) => {
+      e.stopPropagation();
       if (!conversation.is_user) return;
   
       axios
         .post(route("user.blockUnblock", conversation.id))
-        .then((res) => console.log(res.data))
+        .then((res) => {
+          console.log(res.data.message)
+          emit('toast.show', res.data.message);
+        })
         .catch((err) => console.log(err));
     };
   

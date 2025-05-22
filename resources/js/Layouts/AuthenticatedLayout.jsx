@@ -1,11 +1,13 @@
-
 import GroupNotification from "@/Components/App/GroupNotification";
 import NewMessageNotification from "@/Components/App/NewMessageNotification";
+import NewUserModal from "@/Components/App/NewUserModal";
 import ApplicationLogo from "@/Components/ApplicationLogo";
 import Dropdown from "@/Components/Dropdown";
 import NavLink from "@/Components/NavLink";
+import PrimaryButton from "@/Components/PrimaryButton";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { useEventBus } from "@/EventBus";
+import { UserPlusIcon } from "@heroicons/react/16/solid";
 import { Link, usePage } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
 
@@ -18,7 +20,9 @@ export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
-    const subscribedChannels = useRef(new Set())
+    const [showNewUserModal, setShowNewUserModal] = useState(false);
+
+    const subscribedChannels = useRef(new Set());
 
     useEffect(() => {
         conversations.forEach((conversation) => {
@@ -44,8 +48,8 @@ export default function AuthenticatedLayout({ header, children }) {
                     const message = e.message;
 
                     //if the conversation with the sender is not selected then show a notification
-                    if(e.messageDeleted) {
-                        emit('message.deleted', {
+                    if (e.messageDeleted) {
+                        emit("message.deleted", {
                             message: e.message,
                             prevMessage: e.lastMessage,
                         });
@@ -57,7 +61,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         return;
                     }
 
-                    emit('newMessageIds', message)
+                    emit("newMessageIds", message);
 
                     emit("newMessageNotification", {
                         user: message.sender,
@@ -73,34 +77,37 @@ export default function AuthenticatedLayout({ header, children }) {
                     });
                 });
 
-            if(conversation.is_group){
+            if (conversation.is_group) {
                 Echo.private(`group.deleted.${conversation.id}`)
-                .listen('DeleteGroupEvent', (e) => {
-                    console.log('groupdeletd', e);
-                    emit('group.deleted', {id: e.id, name: e.name})
-                })
-                .error((err) => {
-                    console.log(err);
-                })
+                    .listen("DeleteGroupEvent", (e) => {
+                        console.log("groupdeletd", e);
+                        emit("group.deleted", { id: e.id, name: e.name });
+                    })
+                    .error((err) => {
+                        console.log(err);
+                    });
 
                 Echo.private(`group.updated.${conversation.id}`)
-                .listen('CreateOrUpdateGroup', (e) => {
-                    console.log('updated group', e);
-                    
-                    if(e.group.owner_id != user.id){
-                        emit('update.users', {
-                            removedUsers: Object.values(e.removedUsers),
-                            addedUsers: Object.values(e.addedUsers),
-                            groupId: e.group.id,
-                            group: e.group,
-                        })
-                    } else {
-                        emit("toast.show", `"${e.group.name}" was updated 🎉`);
-                    }
-                })
-                .error((err) => {
-                    console.log(err);
-                })
+                    .listen("CreateOrUpdateGroup", (e) => {
+                        console.log("updated group", e);
+
+                        if (e.group.owner_id != user.id) {
+                            emit("update.users", {
+                                removedUsers: Object.values(e.removedUsers),
+                                addedUsers: Object.values(e.addedUsers),
+                                groupId: e.group.id,
+                                group: e.group,
+                            });
+                        } else {
+                            emit(
+                                "toast.show",
+                                `"${e.group.name}" was updated 🎉`
+                            );
+                        }
+                    })
+                    .error((err) => {
+                        console.log(err);
+                    });
             }
         });
 
@@ -110,15 +117,14 @@ export default function AuthenticatedLayout({ header, children }) {
             );
             subscribedChannels.current.forEach((channel) => {
                 Echo.leave(channel);
-                
             });
             subscribedChannels.current.clear();
 
             conversations.forEach((conversation) => {
-                if(conversation.is_group){
-                    Echo.leave('group.deleted.' + conversation.id)
+                if (conversation.is_group) {
+                    Echo.leave("group.deleted." + conversation.id);
                 }
-            })
+            });
         };
     }, [user.id]);
 
@@ -146,13 +152,24 @@ export default function AuthenticatedLayout({ header, children }) {
                             </div>
 
                             <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                                <div className="relative ms-3">
+                                <div className="relative flex gap-2 ms-3">
+                                    {user.is_admin && (
+                                        <PrimaryButton
+                                            onClick={(e) => {
+                                                setShowNewUserModal(true);
+                                            }}
+                                        >
+                                            <UserPlusIcon className="w-5 h-5 mr-4" />
+                                            Add new user
+                                        </PrimaryButton>
+                                    )}
+
                                     <Dropdown>
                                         <Dropdown.Trigger>
                                             <span className="inline-flex rounded-md">
                                                 <button
                                                     type="button"
-                                                    className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
+                                                    className="inline-flex items-center rounded-md border border-transparent dark:bg-gray-950 px-3 py-2 text-sm font-medium leading-4 text-gray-100 transition duration-150 ease-in-out hover:text-gray-200 focus:outline-none"
                                                 >
                                                     {user.name}
 
@@ -197,7 +214,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                             (previousState) => !previousState
                                         )
                                     }
-                                    className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
+                                    className="inline-flex items-center justify-center rounded-md p-2 text-gray-100 transition duration-150 ease-in-out hover:bg-gray-900 hover:text-gray-300 focus:bg-gray-950 focus:text-gray-500 focus:outline-none"
                                 >
                                     <svg
                                         className="h-6 w-6"
@@ -250,10 +267,10 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         <div className="border-t border-gray-200 pb-1 pt-4">
                             <div className="px-4">
-                                <div className="text-base font-medium text-gray-800">
+                                <div className="text-base font-medium text-gray-100">
                                     {user.name}
                                 </div>
-                                <div className="text-sm font-medium text-gray-500">
+                                <div className="text-sm font-medium text-indigo-100">
                                     {user.email}
                                 </div>
                             </div>
@@ -275,7 +292,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </nav>
 
                 {header && (
-                    <header className="bg-white shadow">
+                    <header className="bg-gray-950 shadow">
                         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                             {header}
                         </div>
@@ -286,6 +303,10 @@ export default function AuthenticatedLayout({ header, children }) {
             </div>
             <NewMessageNotification />
             <GroupNotification />
+            <NewUserModal
+                show={showNewUserModal}
+                onClose={(e) => setShowNewUserModal(false)}
+            />
         </>
     );
 }

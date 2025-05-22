@@ -152,6 +152,7 @@ function Home({ message, selectedConversation, last_message_read_id = null }) {
     }, [selectedConversation]);
 
     useEffect(() => {
+        
         console.log("last_message_read_id", last_message_read_id);
         if (!message || message.data.length === 0) {
             setLocalMessage(message ? [...message.data].reverse() : []);
