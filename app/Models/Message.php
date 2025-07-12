@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// second tarike model file ko call karnay ka !! 
+// phele tarike AppServiceProvider wali file mai likha hai check karsaktay hain!!
 #[ObservedBy([MessageObserver::class])]
 
 class Message extends Model

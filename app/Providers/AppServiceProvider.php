@@ -21,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        // ek or method observer ko call karnay kai liye hota hai 
+        // Message::observe(MessageObserver::class);
+
         Vite::prefetch(concurrency: 3);
         if(config('app.env') === 'production') {
             URL::forceScheme('https');
